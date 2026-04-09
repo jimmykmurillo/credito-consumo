@@ -1,30 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<kmodule xmlns="http://www.drools.org/xsd/kmodule">
-
-  <!--
-    KIE Module: credito-consumo
-    Bluepoint AI — Demo evaluación crédito de consumo
-    
-    KieBase: credito-consumo
-      - Incluye todos los paquetes de reglas de evaluación
-      - Modo: CLOUD (todas las reglas en memoria simultáneamente)
-      - EventProcessingOption: STREAM (para compatibilidad con CEP si se requiere)
-    
-    KieSession: sesion-credito
-      - Tipo: STATELESS (cada evaluación es independiente, no acumula estado)
-      - Usar StatelessKieSession.execute(Arrays.asList(solicitante, solicitud, resultado))
-  -->
-
-  <kbase name="credito-consumo"
-         packages="com.bluepointai.credito.reglas"
-         default="false"
-         eventProcessingMode="STREAM"
-         equalsBehavior="EQUALITY">
-
-    <ksession name="sesion-credito"
-              type="stateless"
-              default="true"/>
-
+<kmodule xmlns="http://www.drools.org/xsd/kmodule" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <kbase name="credito-consumo" default="false" eventProcessingMode="stream" equalsBehavior="equality" packages="com.bluepointai.credito.reglas">
+    <ksession name="sesion-credito" type="stateless" default="true" clockType="realtime"/>
   </kbase>
-
 </kmodule>
