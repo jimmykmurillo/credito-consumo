@@ -1,0 +1,723 @@
+{
+  "descripcion": "Casos de prueba — Sistema de evaluación de crédito de consumo con Drools 7",
+  "version": "1.0",
+  "fecha": "2026-04-08",
+  "zonas": {
+    "APROBADO": "Score >= 75 y monto <= $5,000 | Score >= 80 y monto $5,001-$15,000",
+    "REVISION_HUMANA": "Score 45-74 cualquier monto | Score 75+ y monto > $15,000",
+    "RECHAZADO": "Score < 45 | Incumple reglas de admisión | Cuota/ingreso >= 40% | Endeudamiento >= 6x"
+  },
+  "casos": [
+    {
+      "id": "TC-001",
+      "descripcion": "Perfil ideal — aprobación automática zona verde",
+      "zona_esperada": "VERDE",
+      "solicitante": {
+        "edad": 35,
+        "antiguedadLaboral": 84,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 3500.00,
+        "historialCrediticio": "EXCELENTE",
+        "scoreExterno": 790,
+        "nivelEducacion": "SUPERIOR",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 1,
+        "propietarioVivienda": true
+      },
+      "solicitud": {
+        "montoSolicitado": 4000,
+        "plazoMeses": 24,
+        "cuotaMensual": 183.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 1500,
+        "garantia": "NINGUNA",
+        "tasaInteres": 14.5,
+        "entidadOrigen": "AGENCIA"
+      },
+      "resultado_esperado": {
+        "decision": "APROBADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "91/100",
+        "motivos": [],
+        "nota": "Score altísimo, monto bajo, empleado estable 7 años, propietario, historial excelente"
+      }
+    },
+    {
+      "id": "TC-002",
+      "descripcion": "Trabajador joven — primer crédito — aprobación automática",
+      "zona_esperada": "VERDE",
+      "solicitante": {
+        "edad": 27,
+        "antiguedadLaboral": 18,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 1800.00,
+        "historialCrediticio": "SIN_HISTORIAL",
+        "scoreExterno": 680,
+        "nivelEducacion": "SUPERIOR",
+        "estadoCivil": "SOLTERO",
+        "numeroDependientes": 0,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 2000,
+        "plazoMeses": 18,
+        "cuotaMensual": 125.00,
+        "destinoCredito": "EDUCACION",
+        "deudaActualTotal": 0,
+        "garantia": "NINGUNA",
+        "tasaInteres": 16.0,
+        "entidadOrigen": "DIGITAL"
+      },
+      "resultado_esperado": {
+        "decision": "APROBADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "76/100",
+        "motivos": [],
+        "nota": "Sin historial suma puntos como primer crédito, score bueno, cuota/ingreso 6.9% muy holgado"
+      }
+    },
+    {
+      "id": "TC-003",
+      "descripcion": "Jubilado — monto bajo — aprobación automática",
+      "zona_esperada": "VERDE",
+      "solicitante": {
+        "edad": 65,
+        "antiguedadLaboral": 0,
+        "tipoEmpleo": "JUBILADO",
+        "ingresoMensualNeto": 1200.00,
+        "historialCrediticio": "BUENO",
+        "scoreExterno": 710,
+        "nivelEducacion": "MEDIA",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 2,
+        "propietarioVivienda": true
+      },
+      "solicitud": {
+        "montoSolicitado": 3500,
+        "plazoMeses": 36,
+        "cuotaMensual": 120.00,
+        "destinoCredito": "VEHICULO",
+        "deudaActualTotal": 800,
+        "garantia": "DEUDOR_SOLIDARIO",
+        "tasaInteres": 15.5,
+        "entidadOrigen": "SUCURSAL"
+      },
+      "resultado_esperado": {
+        "decision": "APROBADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "79/100",
+        "motivos": [],
+        "nota": "Jubilado estable, propietario, garantía con deudor solidario, cuota/ingreso 10%"
+      }
+    },
+    {
+      "id": "TC-004",
+      "descripcion": "Profesional monto alto — comité de crédito",
+      "zona_esperada": "GRIS",
+      "solicitante": {
+        "edad": 42,
+        "antiguedadLaboral": 120,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 5000.00,
+        "historialCrediticio": "EXCELENTE",
+        "scoreExterno": 800,
+        "nivelEducacion": "POSTGRADO",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 2,
+        "propietarioVivienda": true
+      },
+      "solicitud": {
+        "montoSolicitado": 30000,
+        "plazoMeses": 60,
+        "cuotaMensual": 700.00,
+        "destinoCredito": "VEHICULO",
+        "deudaActualTotal": 5000,
+        "garantia": "HIPOTECARIA",
+        "tasaInteres": 13.5,
+        "entidadOrigen": "AGENCIA"
+      },
+      "resultado_esperado": {
+        "decision": "REVISION_HUMANA",
+        "nivelDecision": "COMITE_CREDITO",
+        "requiereRevisionHumana": true,
+        "scoreEstimado": "95/100",
+        "motivos": [],
+        "nota": "Excelente perfil pero monto > $15,000 exige comité aunque score sea máximo"
+      }
+    },
+    {
+      "id": "TC-005",
+      "descripcion": "Zona gris — score medio — oficial de crédito",
+      "zona_esperada": "GRIS",
+      "solicitante": {
+        "edad": 31,
+        "antiguedadLaboral": 12,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 1400.00,
+        "historialCrediticio": "REGULAR",
+        "scoreExterno": 610,
+        "nivelEducacion": "MEDIA",
+        "estadoCivil": "SOLTERO",
+        "numeroDependientes": 1,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 5000,
+        "plazoMeses": 36,
+        "cuotaMensual": 175.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 2000,
+        "garantia": "NINGUNA",
+        "tasaInteres": 17.0,
+        "entidadOrigen": "DIGITAL"
+      },
+      "resultado_esperado": {
+        "decision": "REVISION_HUMANA",
+        "nivelDecision": "OFICIAL_CREDITO",
+        "requiereRevisionHumana": true,
+        "scoreEstimado": "52/100",
+        "motivos": [],
+        "nota": "Historial regular, score bajo, cuota/ingreso 12.5% — zona gris requiere criterio humano"
+      }
+    },
+    {
+      "id": "TC-006",
+      "descripcion": "Rechazo — historial crediticio MALO",
+      "zona_esperada": "ROJA",
+      "solicitante": {
+        "edad": 38,
+        "antiguedadLaboral": 48,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 2200.00,
+        "historialCrediticio": "MALO",
+        "scoreExterno": 520,
+        "nivelEducacion": "SUPERIOR",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 2,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 3000,
+        "plazoMeses": 24,
+        "cuotaMensual": 145.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 4000,
+        "garantia": "NINGUNA",
+        "tasaInteres": 18.0,
+        "entidadOrigen": "AGENCIA"
+      },
+      "resultado_esperado": {
+        "decision": "RECHAZADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "N/A",
+        "motivos": ["Historial crediticio calificado como MALO. No elegible para crédito de consumo."],
+        "nota": "Regla de admisión con salience 95 termina la evaluación inmediatamente"
+      }
+    },
+    {
+      "id": "TC-007",
+      "descripcion": "Rechazo — edad menor a 21 años",
+      "zona_esperada": "ROJA",
+      "solicitante": {
+        "edad": 19,
+        "antiguedadLaboral": 8,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 900.00,
+        "historialCrediticio": "SIN_HISTORIAL",
+        "scoreExterno": 620,
+        "nivelEducacion": "MEDIA",
+        "estadoCivil": "SOLTERO",
+        "numeroDependientes": 0,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 800,
+        "plazoMeses": 12,
+        "cuotaMensual": 72.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 0,
+        "garantia": "NINGUNA",
+        "tasaInteres": 18.5,
+        "entidadOrigen": "DIGITAL"
+      },
+      "resultado_esperado": {
+        "decision": "RECHAZADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "N/A",
+        "motivos": ["Edad mínima requerida: 21 años. Edad del solicitante: 19"],
+        "nota": "Regla de admisión de edad bloquea con salience 100"
+      }
+    },
+    {
+      "id": "TC-008",
+      "descripcion": "Rechazo — cuota supera el 40% del ingreso",
+      "zona_esperada": "ROJA",
+      "solicitante": {
+        "edad": 33,
+        "antiguedadLaboral": 24,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 800.00,
+        "historialCrediticio": "BUENO",
+        "scoreExterno": 695,
+        "nivelEducacion": "MEDIA",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 3,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 5000,
+        "plazoMeses": 24,
+        "cuotaMensual": 340.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 1200,
+        "garantia": "NINGUNA",
+        "tasaInteres": 17.5,
+        "entidadOrigen": "SUCURSAL"
+      },
+      "resultado_esperado": {
+        "decision": "RECHAZADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "N/A",
+        "motivos": ["Relación cuota/ingreso supera el 40% máximo permitido. Actual: 42.5%"],
+        "nota": "Cuota $340 / Ingreso $800 = 42.5% → rechazado automático"
+      }
+    },
+    {
+      "id": "TC-009",
+      "descripcion": "Rechazo — independiente sin antigüedad mínima",
+      "zona_esperada": "ROJA",
+      "solicitante": {
+        "edad": 29,
+        "antiguedadLaboral": 14,
+        "tipoEmpleo": "INDEPENDIENTE",
+        "ingresoMensualNeto": 2500.00,
+        "historialCrediticio": "BUENO",
+        "scoreExterno": 700,
+        "nivelEducacion": "SUPERIOR",
+        "estadoCivil": "SOLTERO",
+        "numeroDependientes": 0,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 4000,
+        "plazoMeses": 24,
+        "cuotaMensual": 195.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 0,
+        "garantia": "NINGUNA",
+        "tasaInteres": 16.5,
+        "entidadOrigen": "DIGITAL"
+      },
+      "resultado_esperado": {
+        "decision": "RECHAZADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "N/A",
+        "motivos": ["Para trabajadores independientes se requieren 24 meses de actividad. Actual: 14"],
+        "nota": "Independiente con solo 14 meses. Regla de admisión con salience 90"
+      }
+    },
+    {
+      "id": "TC-010",
+      "descripcion": "Rechazo — endeudamiento global excesivo (>= 6x)",
+      "zona_esperada": "ROJA",
+      "solicitante": {
+        "edad": 45,
+        "antiguedadLaboral": 36,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 1500.00,
+        "historialCrediticio": "REGULAR",
+        "scoreExterno": 620,
+        "nivelEducacion": "MEDIA",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 3,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 3000,
+        "plazoMeses": 36,
+        "cuotaMensual": 110.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 11000,
+        "garantia": "NINGUNA",
+        "tasaInteres": 17.0,
+        "entidadOrigen": "AGENCIA"
+      },
+      "resultado_esperado": {
+        "decision": "RECHAZADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "N/A",
+        "motivos": ["Endeudamiento total excede 6 veces el ingreso mensual. Ratio actual: 7.33x"],
+        "nota": "Deuda $11,000 / Ingreso $1,500 = 7.33x → rechazado automático"
+      }
+    },
+    {
+      "id": "TC-011",
+      "descripcion": "Aprobación automática — trabajador con bono fidelidad",
+      "zona_esperada": "VERDE",
+      "solicitante": {
+        "edad": 50,
+        "antiguedadLaboral": 180,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 4200.00,
+        "historialCrediticio": "EXCELENTE",
+        "scoreExterno": 760,
+        "nivelEducacion": "SUPERIOR",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 2,
+        "propietarioVivienda": true
+      },
+      "solicitud": {
+        "montoSolicitado": 8000,
+        "plazoMeses": 36,
+        "cuotaMensual": 280.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 3000,
+        "garantia": "NINGUNA",
+        "tasaInteres": 14.0,
+        "entidadOrigen": "AGENCIA"
+      },
+      "resultado_esperado": {
+        "decision": "APROBADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "91/100",
+        "motivos": [],
+        "nota": "Score alto + bono fidelidad +5pts por 15 años de empleo. Cuota/ingreso 6.7%"
+      }
+    },
+    {
+      "id": "TC-012",
+      "descripcion": "Zona gris — alerta endeudamiento elevado",
+      "zona_esperada": "GRIS",
+      "solicitante": {
+        "edad": 40,
+        "antiguedadLaboral": 60,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 2000.00,
+        "historialCrediticio": "BUENO",
+        "scoreExterno": 670,
+        "nivelEducacion": "SUPERIOR",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 2,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 5000,
+        "plazoMeses": 36,
+        "cuotaMensual": 175.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 9000,
+        "garantia": "NINGUNA",
+        "tasaInteres": 16.5,
+        "entidadOrigen": "AGENCIA"
+      },
+      "resultado_esperado": {
+        "decision": "REVISION_HUMANA",
+        "nivelDecision": "OFICIAL_CREDITO",
+        "requiereRevisionHumana": true,
+        "scoreEstimado": "59/100",
+        "motivos": [],
+        "nota": "Score 59 zona gris + alerta de endeudamiento 4.5x. Dos factores empujan a revisión"
+      }
+    },
+    {
+      "id": "TC-013",
+      "descripcion": "Aprobación automática — score límite 75 monto $4,900",
+      "zona_esperada": "VERDE",
+      "solicitante": {
+        "edad": 28,
+        "antiguedadLaboral": 30,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 2200.00,
+        "historialCrediticio": "BUENO",
+        "scoreExterno": 710,
+        "nivelEducacion": "SUPERIOR",
+        "estadoCivil": "SOLTERO",
+        "numeroDependientes": 0,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 4900,
+        "plazoMeses": 30,
+        "cuotaMensual": 196.00,
+        "destinoCredito": "VIAJE",
+        "deudaActualTotal": 1000,
+        "garantia": "NINGUNA",
+        "tasaInteres": 15.5,
+        "entidadOrigen": "DIGITAL"
+      },
+      "resultado_esperado": {
+        "decision": "APROBADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "76/100",
+        "motivos": [],
+        "nota": "Score exactamente en la frontera verde. Monto justo debajo de $5,000"
+      }
+    },
+    {
+      "id": "TC-014",
+      "descripcion": "Rechazo — score insuficiente (< 45)",
+      "zona_esperada": "ROJA",
+      "solicitante": {
+        "edad": 35,
+        "antiguedadLaboral": 8,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 900.00,
+        "historialCrediticio": "REGULAR",
+        "scoreExterno": 540,
+        "nivelEducacion": "BASICA",
+        "estadoCivil": "DIVORCIADO",
+        "numeroDependientes": 4,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 2000,
+        "plazoMeses": 24,
+        "cuotaMensual": 105.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 1500,
+        "garantia": "NINGUNA",
+        "tasaInteres": 18.5,
+        "entidadOrigen": "SUCURSAL"
+      },
+      "resultado_esperado": {
+        "decision": "RECHAZADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "38/100",
+        "motivos": ["Score total insuficiente: 38/100. Mínimo requerido: 45 puntos."],
+        "nota": "Score bajo 300-580 + historial regular + educación básica + 4 dependientes con penalización"
+      }
+    },
+    {
+      "id": "TC-015",
+      "descripcion": "Monto medio — oficial de crédito (score 70)",
+      "zona_esperada": "GRIS",
+      "solicitante": {
+        "edad": 37,
+        "antiguedadLaboral": 48,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 2800.00,
+        "historialCrediticio": "BUENO",
+        "scoreExterno": 665,
+        "nivelEducacion": "MEDIA",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 2,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 10000,
+        "plazoMeses": 48,
+        "cuotaMensual": 280.00,
+        "destinoCredito": "VEHICULO",
+        "deudaActualTotal": 3500,
+        "garantia": "DEUDOR_SOLIDARIO",
+        "tasaInteres": 15.0,
+        "entidadOrigen": "SUCURSAL"
+      },
+      "resultado_esperado": {
+        "decision": "REVISION_HUMANA",
+        "nivelDecision": "OFICIAL_CREDITO",
+        "requiereRevisionHumana": true,
+        "scoreEstimado": "68/100",
+        "motivos": [],
+        "nota": "Score 68: bueno pero no alcanza 80 para aprobación automática en monto $5,001-$15,000"
+      }
+    },
+    {
+      "id": "TC-016",
+      "descripcion": "Rechazo — edad mayor a 70 años",
+      "zona_esperada": "ROJA",
+      "solicitante": {
+        "edad": 73,
+        "antiguedadLaboral": 0,
+        "tipoEmpleo": "JUBILADO",
+        "ingresoMensualNeto": 900.00,
+        "historialCrediticio": "BUENO",
+        "scoreExterno": 700,
+        "nivelEducacion": "BASICA",
+        "estadoCivil": "VIUDO",
+        "numeroDependientes": 0,
+        "propietarioVivienda": true
+      },
+      "solicitud": {
+        "montoSolicitado": 2000,
+        "plazoMeses": 24,
+        "cuotaMensual": 98.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 0,
+        "garantia": "NINGUNA",
+        "tasaInteres": 16.0,
+        "entidadOrigen": "SUCURSAL"
+      },
+      "resultado_esperado": {
+        "decision": "RECHAZADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "N/A",
+        "motivos": ["Edad máxima permitida: 70 años. Edad del solicitante: 73"],
+        "nota": "Aunque el perfil es solvente, la política de edad máxima es absoluta"
+      }
+    },
+    {
+      "id": "TC-017",
+      "descripcion": "Independiente maduro — aprobación automática",
+      "zona_esperada": "VERDE",
+      "solicitante": {
+        "edad": 44,
+        "antiguedadLaboral": 60,
+        "tipoEmpleo": "INDEPENDIENTE",
+        "ingresoMensualNeto": 4000.00,
+        "historialCrediticio": "EXCELENTE",
+        "scoreExterno": 755,
+        "nivelEducacion": "POSTGRADO",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 2,
+        "propietarioVivienda": true
+      },
+      "solicitud": {
+        "montoSolicitado": 4500,
+        "plazoMeses": 24,
+        "cuotaMensual": 212.00,
+        "destinoCredito": "EDUCACION",
+        "deudaActualTotal": 2000,
+        "garantia": "NINGUNA",
+        "tasaInteres": 14.5,
+        "entidadOrigen": "DIGITAL"
+      },
+      "resultado_esperado": {
+        "decision": "APROBADO",
+        "nivelDecision": "MOTOR_AUTOMATICO",
+        "requiereRevisionHumana": false,
+        "scoreEstimado": "85/100",
+        "motivos": [],
+        "nota": "Independiente cumple 60 meses. Score externo excelente. Destino educación suma puntos extra"
+      }
+    },
+    {
+      "id": "TC-018",
+      "descripcion": "Zona gris — endeudamiento 4.5x + score 62",
+      "zona_esperada": "GRIS",
+      "solicitante": {
+        "edad": 36,
+        "antiguedadLaboral": 30,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 1600.00,
+        "historialCrediticio": "REGULAR",
+        "scoreExterno": 625,
+        "nivelEducacion": "SUPERIOR",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 2,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 3500,
+        "plazoMeses": 36,
+        "cuotaMensual": 126.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 7200,
+        "garantia": "DEUDOR_SOLIDARIO",
+        "tasaInteres": 17.0,
+        "entidadOrigen": "AGENCIA"
+      },
+      "resultado_esperado": {
+        "decision": "REVISION_HUMANA",
+        "nivelDecision": "OFICIAL_CREDITO",
+        "requiereRevisionHumana": true,
+        "scoreEstimado": "62/100",
+        "motivos": [],
+        "nota": "Score zona gris + alerta endeudamiento 4.5x. Oficial debe evaluar viabilidad"
+      }
+    },
+    {
+      "id": "TC-019",
+      "descripcion": "Monto alto score excelente — comité (validar autonomía máxima)",
+      "zona_esperada": "GRIS",
+      "solicitante": {
+        "edad": 48,
+        "antiguedadLaboral": 240,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 8000.00,
+        "historialCrediticio": "EXCELENTE",
+        "scoreExterno": 830,
+        "nivelEducacion": "POSTGRADO",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 1,
+        "propietarioVivienda": true
+      },
+      "solicitud": {
+        "montoSolicitado": 45000,
+        "plazoMeses": 72,
+        "cuotaMensual": 950.00,
+        "destinoCredito": "VEHICULO",
+        "deudaActualTotal": 8000,
+        "garantia": "HIPOTECARIA",
+        "tasaInteres": 13.0,
+        "entidadOrigen": "AGENCIA"
+      },
+      "resultado_esperado": {
+        "decision": "REVISION_HUMANA",
+        "nivelDecision": "COMITE_CREDITO",
+        "requiereRevisionHumana": true,
+        "scoreEstimado": "100/100",
+        "motivos": [],
+        "nota": "Score perfecto. Pero monto $45,000 requiere comité sin excepción. Demuestra que ningún score omite el comité para montos altos"
+      }
+    },
+    {
+      "id": "TC-020",
+      "descripcion": "Penalización por dependientes — baja de zona verde a gris",
+      "zona_esperada": "GRIS",
+      "solicitante": {
+        "edad": 39,
+        "antiguedadLaboral": 36,
+        "tipoEmpleo": "DEPENDIENTE",
+        "ingresoMensualNeto": 1800.00,
+        "historialCrediticio": "BUENO",
+        "scoreExterno": 690,
+        "nivelEducacion": "SUPERIOR",
+        "estadoCivil": "CASADO",
+        "numeroDependientes": 5,
+        "propietarioVivienda": false
+      },
+      "solicitud": {
+        "montoSolicitado": 4000,
+        "plazoMeses": 30,
+        "cuotaMensual": 163.00,
+        "destinoCredito": "CONSUMO",
+        "deudaActualTotal": 2500,
+        "garantia": "NINGUNA",
+        "tasaInteres": 16.5,
+        "entidadOrigen": "SUCURSAL"
+      },
+      "resultado_esperado": {
+        "decision": "REVISION_HUMANA",
+        "nivelDecision": "OFICIAL_CREDITO",
+        "requiereRevisionHumana": true,
+        "scoreEstimado": "57/100",
+        "motivos": [],
+        "nota": "Sin penalización sería ~62 pts. Con 5 dependientes y cuota/ingreso 9% aplica -5 pts. Demuestra la regla guiada de dependientes"
+      }
+    }
+  ],
+  "resumen": {
+    "total_casos": 20,
+    "aprobados_automatico": 6,
+    "revision_humana": 7,
+    "rechazados": 7,
+    "distribucion": {
+      "zona_verde": "TC-001, TC-002, TC-003, TC-011, TC-013, TC-017",
+      "zona_gris": "TC-004, TC-005, TC-012, TC-015, TC-018, TC-019, TC-020",
+      "zona_roja": "TC-006, TC-007, TC-008, TC-009, TC-010, TC-014, TC-016"
+    }
+  }
+}

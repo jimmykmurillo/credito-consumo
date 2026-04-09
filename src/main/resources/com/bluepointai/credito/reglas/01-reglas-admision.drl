@@ -1,0 +1,70 @@
+package com.bluepointai.credito.reglas;
+
+import com.bluepointai.credito.modelo.Solicitante;
+import com.bluepointai.credito.modelo.Solicitud;
+import com.bluepointai.credito.modelo.ResultadoEvaluacion;
+
+// ============================================================
+// TABLA DE DECISIÓN 1: Validación de edad y empleo
+// Verifica condiciones mínimas de admisión
+// ============================================================
+
+rule "Rechazo - Edad menor a 21 años"
+  salience 100
+  when
+    $s : Solicitante(edad < 21)
+    $r : ResultadoEvaluacion()
+  then
+    $r.setDecision("RECHAZADO");
+    $r.addMotivo("Edad mínima requerida: 21 años. Edad del solicitante: " + $s.getEdad());
+    $r.setRequiereRevisionHumana(false);
+    update($r);
+end
+
+rule "Rechazo - Edad mayor a 70 años"
+  salience 100
+  when
+    $s : Solicitante(edad > 70)
+    $r : ResultadoEvaluacion()
+  then
+    $r.setDecision("RECHAZADO");
+    $r.addMotivo("Edad máxima permitida: 70 años. Edad del solicitante: " + $s.getEdad());
+    $r.setRequiereRevisionHumana(false);
+    update($r);
+end
+
+rule "Rechazo - Sin antigüedad laboral mínima"
+  salience 90
+  when
+    $s : Solicitante(tipoEmpleo == "DEPENDIENTE", antiguedadLaboral < 6)
+    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+  then
+    $r.setDecision("RECHAZADO");
+    $r.addMotivo("Antigüedad laboral mínima 6 meses. Antigüedad actual: " + $s.getAntiguedadLaboral() + " mes(es).");
+    $r.setRequiereRevisionHumana(false);
+    update($r);
+end
+
+rule "Rechazo - Independiente sin antigüedad"
+  salience 90
+  when
+    $s : Solicitante(tipoEmpleo == "INDEPENDIENTE", antiguedadLaboral < 24)
+    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+  then
+    $r.setDecision("RECHAZADO");
+    $r.addMotivo("Para trabajadores independientes se requieren 24 meses de actividad. Actual: " + $s.getAntiguedadLaboral());
+    $r.setRequiereRevisionHumana(false);
+    update($r);
+end
+
+rule "Rechazo - Historial crediticio malo"
+  salience 95
+  when
+    $s : Solicitante(historialCrediticio == "MALO")
+    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+  then
+    $r.setDecision("RECHAZADO");
+    $r.addMotivo("Historial crediticio calificado como MALO. No elegible para crédito de consumo.");
+    $r.setRequiereRevisionHumana(false);
+    update($r);
+end
