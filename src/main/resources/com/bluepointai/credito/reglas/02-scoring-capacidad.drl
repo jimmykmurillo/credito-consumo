@@ -2,7 +2,7 @@ package com.bluepointai.credito.reglas;
 
 import com.bluepointai.credito.modelo.Solicitante;
 import com.bluepointai.credito.modelo.Solicitud;
-import com.bluepointai.credito.modelo.ResultadoEvaluacion;
+import com.bluepointai.credito.resultado.ResultadoEvaluacion;
 
 // ============================================================
 // TABLA DE DECISIÓN 2: Score externo → puntos de scoring
