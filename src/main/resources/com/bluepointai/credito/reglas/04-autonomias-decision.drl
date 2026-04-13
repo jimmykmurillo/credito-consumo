@@ -4,34 +4,6 @@ import com.bluepointai.credito.modelo.Solicitante;
 import com.bluepointai.credito.modelo.Solicitud;
 import com.bluepointai.credito.modelo.ResultadoEvaluacion;
 
-rule "Calcular ratios de la solicitud"
-  salience 200
-  no-loop true
-  when
-    $s : Solicitante(ingresoMensualNeto > 0)
-    $sol : Solicitud()
-    $r : ResultadoEvaluacion()
-  then
-    $sol.setRelacionCuotaIngreso($sol.getCuotaMensual() / $s.getIngresoMensualNeto());
-    $sol.setRelacionDeudaIngreso($sol.getDeudaActualTotal() / $s.getIngresoMensualNeto());
-    update($sol);
-end
-
-rule "Rechazo - Endeudamiento global excesivo"
-  salience 85
-  no-loop true
-  when
-    $sol : Solicitud(relacionDeudaIngreso >= 6.0)
-    $r : ResultadoEvaluacion(decision == null)
-  then
-    $r.setDecision("RECHAZADO");
-    $r.setNivelDecision("MOTOR_AUTOMATICO");
-    $r.setRequiereRevisionHumana(false);
-    $r.addMotivo("Endeudamiento excede 6x el ingreso. Ratio: " +
-                 String.format("%.2f", $sol.getRelacionDeudaIngreso()) + "x");
-    update($r);
-end
-
 rule "Bono fidelidad"
   salience 5
   no-loop true
@@ -59,14 +31,30 @@ rule "Consolidar score y decidir"
   salience -5
   no-loop true
   when
+    $s : Solicitante(ingresoMensualNeto > 0)
     $sol : Solicitud()
     $r : ResultadoEvaluacion(decision == null)
   then
     int score = $r.getScoreTotal();
     double monto = $sol.getMontoSolicitado();
-    double rdi = $sol.getRelacionDeudaIngreso();
+    double cuota = $sol.getCuotaMensual();
+    double ingreso = $s.getIngresoMensualNeto();
+    double deuda = $sol.getDeudaActualTotal();
+    double rci = cuota / ingreso;
+    double rdi = deuda / ingreso;
 
-    if (rdi >= 4.0 && rdi < 6.0) {
+    $sol.setRelacionCuotaIngreso(rci);
+    $sol.setRelacionDeudaIngreso(rdi);
+
+    if (rdi >= 6.0) {
+        $r.setDecision("RECHAZADO");
+        $r.setNivelDecision("MOTOR_AUTOMATICO");
+        $r.setRequiereRevisionHumana(false);
+        $r.addMotivo("Endeudamiento excede 6x el ingreso. Ratio: " + String.format("%.2f", rdi) + "x");
+        return;
+    }
+
+    if (rdi >= 4.0) {
         $r.addDetalle("Alerta: endeudamiento " + String.format("%.1f", rdi) + "x el ingreso.");
     }
 
