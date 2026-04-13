@@ -114,7 +114,7 @@ rule "Rechazo - Endeudamiento global excesivo (>= 6x ingreso mensual)"
   salience 85
   when
     $sol : Solicitud(relacionDeudaIngreso >= 6.0)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.setDecision("RECHAZADO");
     $r.addMotivo("Endeudamiento total excede 6 veces el ingreso mensual. Ratio actual: " + 
@@ -127,7 +127,7 @@ rule "Alerta - Endeudamiento elevado (4-6x ingreso) → zona gris"
   salience 75
   when
     $sol : Solicitud(relacionDeudaIngreso >= 4.0, relacionDeudaIngreso < 6.0)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.setRequiereRevisionHumana(true);
     $r.addDetalle("Alerta: endeudamiento total " + String.format("%.1f", $sol.getRelacionDeudaIngreso()) + "x el ingreso mensual.");
@@ -141,7 +141,7 @@ end
 rule "Bono fidelidad - Solicitante mayor a 60 meses en relación laboral estable"
   when
     $s : Solicitante(antiguedadLaboral >= 60, tipoEmpleo == "DEPENDIENTE")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosScore(5);
     $r.addDetalle("Bono fidelidad: más de 5 años en empleo estable → +5 puntos adicionales");
@@ -155,7 +155,7 @@ rule "Penalización - Muchos dependientes (>= 4)"
   when
     $s : Solicitante(numeroDependientes >= 4)
     $sol : Solicitud(relacionCuotaIngreso >= 0.25)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosScore(-5);
     $r.addDetalle("Penalización: " + $s.getNumeroDependientes() + " dependientes con cuota/ingreso elevada → -5 puntos");
