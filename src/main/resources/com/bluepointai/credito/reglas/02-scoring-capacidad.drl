@@ -12,7 +12,7 @@ import com.bluepointai.credito.modelo.ResultadoEvaluacion;
 rule "Score Externo - Excelente (750-850)"
   when
     $s : Solicitante(scoreExterno >= 750)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosScore(40);
     $r.addDetalle("Score externo " + $s.getScoreExterno() + " → +40 puntos");
@@ -21,7 +21,7 @@ end
 rule "Score Externo - Muy bueno (700-749)"
   when
     $s : Solicitante(scoreExterno >= 700, scoreExterno < 750)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosScore(32);
     $r.addDetalle("Score externo " + $s.getScoreExterno() + " → +32 puntos");
@@ -30,7 +30,7 @@ end
 rule "Score Externo - Bueno (650-699)"
   when
     $s : Solicitante(scoreExterno >= 650, scoreExterno < 700)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+   $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosScore(22);
     $r.addDetalle("Score externo " + $s.getScoreExterno() + " → +22 puntos");
@@ -39,7 +39,7 @@ end
 rule "Score Externo - Regular (580-649)"
   when
     $s : Solicitante(scoreExterno >= 580, scoreExterno < 650)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosScore(10);
     $r.addDetalle("Score externo " + $s.getScoreExterno() + " → +10 puntos");
@@ -48,7 +48,7 @@ end
 rule "Score Externo - Bajo (< 580)"
   when
     $s : Solicitante(scoreExterno < 580)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosScore(0);
     $r.addDetalle("Score externo " + $s.getScoreExterno() + " → +0 puntos");
@@ -62,7 +62,7 @@ end
 rule "Cuota/Ingreso - Holgado (< 20%)"
   when
     $sol : Solicitud(relacionCuotaIngreso < 0.20)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosCapacidad(30);
     $r.addDetalle("Relación cuota/ingreso " + String.format("%.1f", $sol.getRelacionCuotaIngreso()*100) + "% → +30 puntos");
@@ -71,7 +71,7 @@ end
 rule "Cuota/Ingreso - Adecuado (20-30%)"
   when
     $sol : Solicitud(relacionCuotaIngreso >= 0.20, relacionCuotaIngreso < 0.30)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosCapacidad(20);
     $r.addDetalle("Relación cuota/ingreso " + String.format("%.1f", $sol.getRelacionCuotaIngreso()*100) + "% → +20 puntos");
@@ -80,7 +80,7 @@ end
 rule "Cuota/Ingreso - Ajustado (30-40%)"
   when
     $sol : Solicitud(relacionCuotaIngreso >= 0.30, relacionCuotaIngreso < 0.40)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosCapacidad(10);
     $r.addDetalle("Relación cuota/ingreso " + String.format("%.1f", $sol.getRelacionCuotaIngreso()*100) + "% → +10 puntos");
@@ -90,7 +90,7 @@ rule "Rechazo - Cuota/Ingreso insostenible (>= 40%)"
   salience 80
   when
     $sol : Solicitud(relacionCuotaIngreso >= 0.40)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.setDecision("RECHAZADO");
     $r.addMotivo("Relación cuota/ingreso supera el 40% máximo permitido. Actual: " + 
