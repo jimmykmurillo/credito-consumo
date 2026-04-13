@@ -3,14 +3,59 @@
   <baselineScore>0.0</baselineScore>
   <initialScore>0.0</initialScore>
   <useReasonCodes>false</useReasonCodes>
-  <factName></factName>
+  <factName>Solicitante</factName>
   <fieldName></fieldName>
   <reasonCodesAlgorithm></reasonCodesAlgorithm>
   <reasonCodeField></reasonCodeField>
-  <characteristics/>
+  <characteristics>
+    <org.drools.workbench.models.guided.scorecard.shared.Characteristic>
+      <fact>Solicitante</fact>
+      <field>historialCrediticio</field>
+      <baselineScore>0.0</baselineScore>
+      <reasonCode></reasonCode>
+      <attributes>
+        <org.drools.workbench.models.guided.scorecard.shared.Attribute>
+          <value>EXCELENTE</value>
+          <partialScore>15.0</partialScore>
+          <reasonCode></reasonCode>
+          <operator>=</operator>
+        </org.drools.workbench.models.guided.scorecard.shared.Attribute>
+        <org.drools.workbench.models.guided.scorecard.shared.Attribute>
+          <value>BUENO</value>
+          <partialScore>10.0</partialScore>
+          <reasonCode></reasonCode>
+          <operator>=</operator>
+        </org.drools.workbench.models.guided.scorecard.shared.Attribute>
+        <org.drools.workbench.models.guided.scorecard.shared.Attribute>
+          <value>SIN_HISTORIAL</value>
+          <partialScore>6.0</partialScore>
+          <reasonCode></reasonCode>
+          <operator>=</operator>
+        </org.drools.workbench.models.guided.scorecard.shared.Attribute>
+        <org.drools.workbench.models.guided.scorecard.shared.Attribute>
+          <value>REGULAR</value>
+          <partialScore>4.0</partialScore>
+          <reasonCode></reasonCode>
+          <operator>=</operator>
+        </org.drools.workbench.models.guided.scorecard.shared.Attribute>
+        <org.drools.workbench.models.guided.scorecard.shared.Attribute>
+          <value>MALO</value>
+          <partialScore>0.0</partialScore>
+          <reasonCode></reasonCode>
+          <operator>=</operator>
+        </org.drools.workbench.models.guided.scorecard.shared.Attribute>
+      </attributes>
+      <name>Historial Crediticio</name>
+      <dataType>String</dataType>
+    </org.drools.workbench.models.guided.scorecard.shared.Characteristic>
+  </characteristics>
   <packageName>com.bluepointai.credito.reglas</packageName>
   <imports>
-    <imports/>
+    <imports>
+      <org.kie.soup.project.datamodel.imports.Import>
+        <type>com.bluepointai.credito.modelo.Solicitante</type>
+      </org.kie.soup.project.datamodel.imports.Import>
+    </imports>
   </imports>
   <agendaGroup></agendaGroup>
   <ruleFlowGroup></ruleFlowGroup>
