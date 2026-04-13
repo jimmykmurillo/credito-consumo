@@ -22,7 +22,7 @@ public class ResultadoEvaluacion implements java.io.Serializable {
     public ResultadoEvaluacion() {
         this.motivos = new ArrayList<>();
         this.detalles = new ArrayList<>();
-        this.decision = "PENDIENTE";
+        this.decision = null;
     }
 
     public void agregarPuntosScore(int p) { puntosScore += p; recalcular(); }
