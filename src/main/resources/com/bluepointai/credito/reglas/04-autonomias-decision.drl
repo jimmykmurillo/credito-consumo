@@ -6,6 +6,7 @@ import com.bluepointai.credito.modelo.ResultadoEvaluacion;
 
 rule "Calcular ratios de la solicitud"
   salience 200
+  no-loop true
   when
     $s : Solicitante(ingresoMensualNeto > 0)
     $sol : Solicitud()
@@ -18,9 +19,10 @@ end
 
 rule "Rechazo - Endeudamiento global excesivo"
   salience 85
+  no-loop true
   when
     $sol : Solicitud(relacionDeudaIngreso >= 6.0)
-    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null)
   then
     $r.setDecision("RECHAZADO");
     $r.addMotivo("Endeudamiento total excede 6 veces el ingreso mensual. Ratio: " +
@@ -31,9 +33,10 @@ end
 
 rule "Alerta - Endeudamiento elevado"
   salience 75
+  no-loop true
   when
     $sol : Solicitud(relacionDeudaIngreso >= 4.0, relacionDeudaIngreso < 6.0)
-    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null)
   then
     $r.setRequiereRevisionHumana(true);
     $r.addDetalle("Alerta: endeudamiento " + String.format("%.1f", $sol.getRelacionDeudaIngreso()) + "x el ingreso.");
@@ -42,99 +45,68 @@ end
 
 rule "Bono fidelidad"
   salience 5
+  no-loop true
   when
     $s : Solicitante(antiguedadLaboral >= 60, tipoEmpleo == "DEPENDIENTE")
-    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null)
   then
     $r.agregarPuntosScore(5);
     $r.addDetalle("Bono fidelidad: más de 5 años en empleo estable → +5 puntos adicionales");
-    update($r);
 end
 
 rule "Penalización - Muchos dependientes"
   salience 5
+  no-loop true
   when
     $s : Solicitante(numeroDependientes >= 4)
     $sol : Solicitud(relacionCuotaIngreso >= 0.25)
-    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null)
   then
     $r.agregarPuntosScore(-5);
     $r.addDetalle("Penalización: " + $s.getNumeroDependientes() + " dependientes → -5 puntos");
-    update($r);
 end
 
-rule "Autonomía - Aprobación automática monto bajo"
+rule "Consolidar score y tomar decision"
   salience -5
+  no-loop true
   when
-    $r : ResultadoEvaluacion(decision == null, scoreTotal >= 75)
-    $sol : Solicitud(montoSolicitado <= 5000)
+    $s : Solicitante()
+    $sol : Solicitud()
+    $r : ResultadoEvaluacion(decision == null)
   then
-    $r.setDecision("APROBADO");
-    $r.setNivelDecision("MOTOR_AUTOMATICO");
-    $r.setRequiereRevisionHumana(false);
-    $r.addDetalle("Score " + $r.getScoreTotal() + "/100 — $" + $sol.getMontoSolicitado() + " → Aprobación automática");
-    update($r);
-end
+    int score = $r.getScoreTotal();
+    double monto = $sol.getMontoSolicitado();
 
-rule "Autonomía - Aprobación automática monto medio"
-  salience -5
-  when
-    $r : ResultadoEvaluacion(decision == null, scoreTotal >= 80)
-    $sol : Solicitud(montoSolicitado > 5000, montoSolicitado <= 15000)
-  then
-    $r.setDecision("APROBADO");
-    $r.setNivelDecision("MOTOR_AUTOMATICO");
-    $r.setRequiereRevisionHumana(false);
-    $r.addDetalle("Score " + $r.getScoreTotal() + "/100 — $" + $sol.getMontoSolicitado() + " → Aprobación automática");
-    update($r);
-end
-
-rule "Autonomía - Oficial monto medio score bajo"
-  salience -6
-  when
-    $r : ResultadoEvaluacion(decision == null, scoreTotal >= 60, scoreTotal < 80)
-    $sol : Solicitud(montoSolicitado > 5000, montoSolicitado <= 15000)
-  then
-    $r.setDecision("REVISION_HUMANA");
-    $r.setNivelDecision("OFICIAL_CREDITO");
-    $r.setRequiereRevisionHumana(true);
-    $r.addDetalle("Score " + $r.getScoreTotal() + "/100 — Requiere Oficial de Crédito");
-    update($r);
-end
-
-rule "Autonomía - Comité monto alto"
-  salience -6
-  when
-    $r : ResultadoEvaluacion(decision == null, scoreTotal >= 75)
-    $sol : Solicitud(montoSolicitado > 15000, montoSolicitado <= 50000)
-  then
-    $r.setDecision("REVISION_HUMANA");
-    $r.setNivelDecision("COMITE_CREDITO");
-    $r.setRequiereRevisionHumana(true);
-    $r.addDetalle("Score " + $r.getScoreTotal() + "/100 — Requiere Comité de Crédito");
-    update($r);
-end
-
-rule "Autonomía - Zona gris score medio"
-  salience -7
-  when
-    $r : ResultadoEvaluacion(decision == null, scoreTotal >= 45, scoreTotal < 60)
-  then
-    $r.setDecision("REVISION_HUMANA");
-    $r.setNivelDecision("OFICIAL_CREDITO");
-    $r.setRequiereRevisionHumana(true);
-    $r.addDetalle("Score " + $r.getScoreTotal() + "/100 — Zona gris");
-    update($r);
-end
-
-rule "Rechazo - Score insuficiente"
-  salience -10
-  when
-    $r : ResultadoEvaluacion(decision == null, scoreTotal < 45)
-  then
-    $r.setDecision("RECHAZADO");
-    $r.setNivelDecision("MOTOR_AUTOMATICO");
-    $r.setRequiereRevisionHumana(false);
-    $r.addMotivo("Score insuficiente: " + $r.getScoreTotal() + "/100. Mínimo: 45 puntos.");
+    if (score >= 75 && monto <= 5000) {
+        $r.setDecision("APROBADO");
+        $r.setNivelDecision("MOTOR_AUTOMATICO");
+        $r.setRequiereRevisionHumana(false);
+        $r.addDetalle("Score " + score + "/100 — $" + monto + " → Aprobación automática");
+    } else if (score >= 80 && monto > 5000 && monto <= 15000) {
+        $r.setDecision("APROBADO");
+        $r.setNivelDecision("MOTOR_AUTOMATICO");
+        $r.setRequiereRevisionHumana(false);
+        $r.addDetalle("Score " + score + "/100 — $" + monto + " → Aprobación automática");
+    } else if (score >= 75 && monto > 15000 && monto <= 50000) {
+        $r.setDecision("REVISION_HUMANA");
+        $r.setNivelDecision("COMITE_CREDITO");
+        $r.setRequiereRevisionHumana(true);
+        $r.addDetalle("Score " + score + "/100 — $" + monto + " → Requiere Comité de Crédito");
+    } else if (score >= 60 && monto > 5000 && monto <= 15000) {
+        $r.setDecision("REVISION_HUMANA");
+        $r.setNivelDecision("OFICIAL_CREDITO");
+        $r.setRequiereRevisionHumana(true);
+        $r.addDetalle("Score " + score + "/100 — $" + monto + " → Requiere Oficial de Crédito");
+    } else if (score >= 45) {
+        $r.setDecision("REVISION_HUMANA");
+        $r.setNivelDecision("OFICIAL_CREDITO");
+        $r.setRequiereRevisionHumana(true);
+        $r.addDetalle("Score " + score + "/100 — Zona gris");
+    } else {
+        $r.setDecision("RECHAZADO");
+        $r.setNivelDecision("MOTOR_AUTOMATICO");
+        $r.setRequiereRevisionHumana(false);
+        $r.addMotivo("Score insuficiente: " + score + "/100. Mínimo: 45 puntos.");
+    }
     update($r);
 end
