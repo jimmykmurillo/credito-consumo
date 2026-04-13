@@ -3,12 +3,6 @@ package com.bluepointai.credito.modelo;
 import java.util.ArrayList;
 import java.util.List;
 
-public ResultadoEvaluacion() {
-    this.motivos = new ArrayList<>();
-    this.detalles = new ArrayList<>();
-    this.decision = "PENDIENTE";
-}
-
 public class ResultadoEvaluacion implements java.io.Serializable {
 
     private String decision;
