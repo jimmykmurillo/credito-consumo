@@ -19,7 +19,11 @@ public class ResultadoEvaluacion implements java.io.Serializable {
     private List<String> motivos = new ArrayList<>();
     private List<String> detalles = new ArrayList<>();
 
-    public ResultadoEvaluacion() {}
+    public ResultadoEvaluacion() {
+        this.motivos = new ArrayList<>();
+        this.detalles = new ArrayList<>();
+        this.decision = "PENDIENTE";
+    }
 
     public void agregarPuntosScore(int p) { puntosScore += p; recalcular(); }
     public void agregarPuntosCapacidad(int p) { puntosCapacidad += p; recalcular(); }
