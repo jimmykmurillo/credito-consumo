@@ -17,7 +17,6 @@ rule "Scorecard - Historial EXCELENTE"
   then
     $r.agregarPuntosHistorial(15);
     $r.addDetalle("Historial EXCELENTE → +15 puntos");
-    update($r);
 end
 
 rule "Scorecard - Historial BUENO"
@@ -27,7 +26,6 @@ rule "Scorecard - Historial BUENO"
   then
     $r.agregarPuntosHistorial(10);
     $r.addDetalle("Historial BUENO → +10 puntos");
-    update($r);
 end
 
 rule "Scorecard - Historial REGULAR"
@@ -37,7 +35,6 @@ rule "Scorecard - Historial REGULAR"
   then
     $r.agregarPuntosHistorial(4);
     $r.addDetalle("Historial REGULAR → +4 puntos");
-    update($r);
 end
 
 rule "Scorecard - SIN_HISTORIAL"
@@ -47,7 +44,6 @@ rule "Scorecard - SIN_HISTORIAL"
   then
     $r.agregarPuntosHistorial(6);
     $r.addDetalle("SIN_HISTORIAL (primer crédito) → +6 puntos");
-    update($r);
 end
 
 // --- Estabilidad laboral — tipo de empleo (hasta 8 puntos) ---
@@ -58,7 +54,6 @@ rule "Scorecard - Empleo DEPENDIENTE"
   then
     $r.agregarPuntosEstabilidad(8);
     $r.addDetalle("Empleo DEPENDIENTE → +8 puntos");
-    update($r);
 end
 
 rule "Scorecard - Empleo JUBILADO"
@@ -68,7 +63,6 @@ rule "Scorecard - Empleo JUBILADO"
   then
     $r.agregarPuntosEstabilidad(7);
     $r.addDetalle("Empleo JUBILADO → +7 puntos");
-    update($r);
 end
 
 rule "Scorecard - Empleo INDEPENDIENTE"
@@ -78,7 +72,6 @@ rule "Scorecard - Empleo INDEPENDIENTE"
   then
     $r.agregarPuntosEstabilidad(4);
     $r.addDetalle("Empleo INDEPENDIENTE → +4 puntos");
-    update($r);
 end
 
 // --- Propiedad de vivienda (hasta 4 puntos) ---
@@ -89,7 +82,6 @@ rule "Scorecard - Propietario de vivienda"
   then
     $r.agregarPuntosGarantia(4);
     $r.addDetalle("Propietario de vivienda → +4 puntos");
-    update($r);
 end
 
 // --- Nivel de educación (hasta 3 puntos) ---
@@ -100,7 +92,6 @@ rule "Scorecard - Educación SUPERIOR o POSTGRADO"
   then
     $r.agregarPuntosEducacion(3);
     $r.addDetalle("Educación " + $s.getNivelEducacion() + " → +3 puntos");
-    update($r);
 end
 
 rule "Scorecard - Educación MEDIA"
@@ -110,7 +101,6 @@ rule "Scorecard - Educación MEDIA"
   then
     $r.agregarPuntosEducacion(1);
     $r.addDetalle("Educación MEDIA → +1 punto");
-    update($r);
 end
 
 // ============================================================
@@ -125,7 +115,6 @@ rule "Scorecard - Garantía HIPOTECARIA"
   then
     $r.agregarPuntosGarantia(6);
     $r.addDetalle("Garantía HIPOTECARIA → +6 puntos");
-    update($r);
 end
 
 rule "Scorecard - Garantía DEUDOR_SOLIDARIO"
@@ -135,7 +124,6 @@ rule "Scorecard - Garantía DEUDOR_SOLIDARIO"
   then
     $r.agregarPuntosGarantia(3);
     $r.addDetalle("Garantía DEUDOR SOLIDARIO → +3 puntos");
-    update($r);
 end
 
 rule "Scorecard - Destino EDUCACION"
@@ -145,7 +133,6 @@ rule "Scorecard - Destino EDUCACION"
   then
     $r.agregarPuntosDestino(4);
     $r.addDetalle("Destino EDUCACIÓN → +4 puntos");
-    update($r);
 end
 
 rule "Scorecard - Destino VEHICULO"
@@ -155,7 +142,6 @@ rule "Scorecard - Destino VEHICULO"
   then
     $r.agregarPuntosDestino(3);
     $r.addDetalle("Destino VEHÍCULO → +3 puntos");
-    update($r);
 end
 
 rule "Scorecard - Destino CONSUMO u OTROS"
@@ -165,5 +151,4 @@ rule "Scorecard - Destino CONSUMO u OTROS"
   then
     $r.agregarPuntosDestino(1);
     $r.addDetalle("Destino " + $sol.getDestinoCredito() + " → +1 punto");
-    update($r);
 end
