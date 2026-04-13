@@ -13,7 +13,7 @@ import com.bluepointai.credito.modelo.ResultadoEvaluacion;
 rule "Scorecard - Historial EXCELENTE"
   when
     $s : Solicitante(historialCrediticio == "EXCELENTE")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosHistorial(15);
     $r.addDetalle("Historial EXCELENTE → +15 puntos");
@@ -22,7 +22,7 @@ end
 rule "Scorecard - Historial BUENO"
   when
     $s : Solicitante(historialCrediticio == "BUENO")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosHistorial(10);
     $r.addDetalle("Historial BUENO → +10 puntos");
@@ -31,7 +31,7 @@ end
 rule "Scorecard - Historial REGULAR"
   when
     $s : Solicitante(historialCrediticio == "REGULAR")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosHistorial(4);
     $r.addDetalle("Historial REGULAR → +4 puntos");
@@ -40,7 +40,7 @@ end
 rule "Scorecard - SIN_HISTORIAL"
   when
     $s : Solicitante(historialCrediticio == "SIN_HISTORIAL")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosHistorial(6);
     $r.addDetalle("SIN_HISTORIAL (primer crédito) → +6 puntos");
@@ -50,7 +50,7 @@ end
 rule "Scorecard - Empleo DEPENDIENTE"
   when
     $s : Solicitante(tipoEmpleo == "DEPENDIENTE")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosEstabilidad(8);
     $r.addDetalle("Empleo DEPENDIENTE → +8 puntos");
@@ -59,7 +59,7 @@ end
 rule "Scorecard - Empleo JUBILADO"
   when
     $s : Solicitante(tipoEmpleo == "JUBILADO")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosEstabilidad(7);
     $r.addDetalle("Empleo JUBILADO → +7 puntos");
@@ -68,7 +68,7 @@ end
 rule "Scorecard - Empleo INDEPENDIENTE"
   when
     $s : Solicitante(tipoEmpleo == "INDEPENDIENTE")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosEstabilidad(4);
     $r.addDetalle("Empleo INDEPENDIENTE → +4 puntos");
@@ -78,7 +78,7 @@ end
 rule "Scorecard - Propietario de vivienda"
   when
     $s : Solicitante(propietarioVivienda == true)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosGarantia(4);
     $r.addDetalle("Propietario de vivienda → +4 puntos");
@@ -88,7 +88,7 @@ end
 rule "Scorecard - Educación SUPERIOR o POSTGRADO"
   when
     $s : Solicitante(nivelEducacion == "SUPERIOR" || nivelEducacion == "POSTGRADO")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosEducacion(3);
     $r.addDetalle("Educación " + $s.getNivelEducacion() + " → +3 puntos");
@@ -97,7 +97,7 @@ end
 rule "Scorecard - Educación MEDIA"
   when
     $s : Solicitante(nivelEducacion == "MEDIA")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosEducacion(1);
     $r.addDetalle("Educación MEDIA → +1 punto");
@@ -111,7 +111,7 @@ end
 rule "Scorecard - Garantía HIPOTECARIA"
   when
     $sol : Solicitud(garantia == "HIPOTECARIA")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosGarantia(6);
     $r.addDetalle("Garantía HIPOTECARIA → +6 puntos");
@@ -120,7 +120,7 @@ end
 rule "Scorecard - Garantía DEUDOR_SOLIDARIO"
   when
     $sol : Solicitud(garantia == "DEUDOR_SOLIDARIO")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosGarantia(3);
     $r.addDetalle("Garantía DEUDOR SOLIDARIO → +3 puntos");
@@ -129,7 +129,7 @@ end
 rule "Scorecard - Destino EDUCACION"
   when
     $sol : Solicitud(destinoCredito == "EDUCACION")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosDestino(4);
     $r.addDetalle("Destino EDUCACIÓN → +4 puntos");
@@ -138,7 +138,7 @@ end
 rule "Scorecard - Destino VEHICULO"
   when
     $sol : Solicitud(destinoCredito == "VEHICULO")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosDestino(3);
     $r.addDetalle("Destino VEHÍCULO → +3 puntos");
@@ -147,7 +147,7 @@ end
 rule "Scorecard - Destino CONSUMO u OTROS"
   when
     $sol : Solicitud(destinoCredito == "CONSUMO" || destinoCredito == "OTROS" || destinoCredito == "VIAJE")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.agregarPuntosDestino(1);
     $r.addDetalle("Destino " + $sol.getDestinoCredito() + " → +1 punto");
