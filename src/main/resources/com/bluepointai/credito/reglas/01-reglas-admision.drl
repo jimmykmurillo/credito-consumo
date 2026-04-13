@@ -37,7 +37,7 @@ rule "Rechazo - Sin antigüedad laboral mínima"
   salience 90
   when
     $s : Solicitante(tipoEmpleo == "DEPENDIENTE", antiguedadLaboral < 6)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.setDecision("RECHAZADO");
     $r.addMotivo("Antigüedad laboral mínima 6 meses. Antigüedad actual: " + $s.getAntiguedadLaboral() + " mes(es).");
@@ -49,7 +49,7 @@ rule "Rechazo - Independiente sin antigüedad"
   salience 90
   when
     $s : Solicitante(tipoEmpleo == "INDEPENDIENTE", antiguedadLaboral < 24)
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.setDecision("RECHAZADO");
     $r.addMotivo("Para trabajadores independientes se requieren 24 meses de actividad. Actual: " + $s.getAntiguedadLaboral());
@@ -61,7 +61,7 @@ rule "Rechazo - Historial crediticio malo"
   salience 95
   when
     $s : Solicitante(historialCrediticio == "MALO")
-    $r : ResultadoEvaluacion(decision != "RECHAZADO")
+    $r : ResultadoEvaluacion(decision == null || decision != "RECHAZADO")
   then
     $r.setDecision("RECHAZADO");
     $r.addMotivo("Historial crediticio calificado como MALO. No elegible para crédito de consumo.");
