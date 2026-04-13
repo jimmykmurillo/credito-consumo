@@ -131,7 +131,7 @@
         <isOtherwise>false</isOtherwise>
       </typedDefaultValue>
       <hideColumn>false</hideColumn>
-      <width>100</width>
+      <width>107</width>
       <header>Decisión</header>
       <factType>ResultadoEvaluacion</factType>
       <boundName>$r</boundName>
