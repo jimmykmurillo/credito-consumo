@@ -48,6 +48,7 @@ rule "Bono fidelidad"
   then
     $r.agregarPuntosScore(5);
     $r.addDetalle("Bono fidelidad: más de 5 años en empleo estable → +5 puntos adicionales");
+    update($r);
 end
 
 rule "Penalización - Muchos dependientes"
@@ -59,6 +60,7 @@ rule "Penalización - Muchos dependientes"
   then
     $r.agregarPuntosScore(-5);
     $r.addDetalle("Penalización: " + $s.getNumeroDependientes() + " dependientes → -5 puntos");
+    update($r);
 end
 
 rule "Autonomía - Aprobación automática monto bajo"
