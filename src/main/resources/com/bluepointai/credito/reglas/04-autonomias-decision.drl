@@ -10,7 +10,7 @@ import com.bluepointai.credito.modelo.ResultadoEvaluacion;
 // ============================================================
 
 rule "Autonomía - Aprobación automática zona verde alta"
-  salience 10
+  salience -5
   when
     $r : ResultadoEvaluacion(
       decision != "RECHAZADO",
@@ -26,7 +26,7 @@ rule "Autonomía - Aprobación automática zona verde alta"
 end
 
 rule "Autonomía - Aprobación automática monto medio"
-  salience 10
+  salience -5
   when
     $r : ResultadoEvaluacion(
       decision != "RECHAZADO",
@@ -42,7 +42,7 @@ rule "Autonomía - Aprobación automática monto medio"
 end
 
 rule "Autonomía - Oficial de crédito monto medio score bajo"
-  salience 9
+  salience -6
   when
     $r : ResultadoEvaluacion(
       decision != "RECHAZADO",
@@ -58,7 +58,7 @@ rule "Autonomía - Oficial de crédito monto medio score bajo"
 end
 
 rule "Autonomía - Comité monto alto score alto"
-  salience 9
+  salience -6
   when
     $r : ResultadoEvaluacion(
       decision != "RECHAZADO",
@@ -74,7 +74,7 @@ rule "Autonomía - Comité monto alto score alto"
 end
 
 rule "Autonomía - Zona gris: score medio cualquier monto"
-  salience 8
+  salience -7
   when
     $r : ResultadoEvaluacion(
       decision != "RECHAZADO",
@@ -91,10 +91,10 @@ rule "Autonomía - Zona gris: score medio cualquier monto"
 end
 
 rule "Rechazo - Score insuficiente (< 45)"
-  salience 7
+  salience -10
   when
     $r : ResultadoEvaluacion(
-      decision != "RECHAZADO",
+      decision == null || decision != "RECHAZADO",
       scoreTotal < 45
     )
   then
