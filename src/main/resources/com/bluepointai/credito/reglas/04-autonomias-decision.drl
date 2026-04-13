@@ -25,21 +25,10 @@ rule "Rechazo - Endeudamiento global excesivo"
     $r : ResultadoEvaluacion(decision == null)
   then
     $r.setDecision("RECHAZADO");
-    $r.addMotivo("Endeudamiento total excede 6 veces el ingreso mensual. Ratio: " +
-                 String.format("%.2f", $sol.getRelacionDeudaIngreso()) + "x");
+    $r.setNivelDecision("MOTOR_AUTOMATICO");
     $r.setRequiereRevisionHumana(false);
-    update($r);
-end
-
-rule "Alerta - Endeudamiento elevado"
-  salience 75
-  no-loop true
-  when
-    $sol : Solicitud(relacionDeudaIngreso >= 4.0, relacionDeudaIngreso < 6.0)
-    $r : ResultadoEvaluacion(decision == null)
-  then
-    $r.setRequiereRevisionHumana(true);
-    $r.addDetalle("Alerta: endeudamiento " + String.format("%.1f", $sol.getRelacionDeudaIngreso()) + "x el ingreso.");
+    $r.addMotivo("Endeudamiento excede 6x el ingreso. Ratio: " +
+                 String.format("%.2f", $sol.getRelacionDeudaIngreso()) + "x");
     update($r);
 end
 
@@ -51,7 +40,7 @@ rule "Bono fidelidad"
     $r : ResultadoEvaluacion(decision == null)
   then
     $r.agregarPuntosScore(5);
-    $r.addDetalle("Bono fidelidad: más de 5 años en empleo estable → +5 puntos adicionales");
+    $r.addDetalle("Bono fidelidad → +5 puntos");
 end
 
 rule "Penalización - Muchos dependientes"
@@ -63,50 +52,53 @@ rule "Penalización - Muchos dependientes"
     $r : ResultadoEvaluacion(decision == null)
   then
     $r.agregarPuntosScore(-5);
-    $r.addDetalle("Penalización: " + $s.getNumeroDependientes() + " dependientes → -5 puntos");
+    $r.addDetalle("Penalización dependientes → -5 puntos");
 end
 
-rule "Consolidar score y tomar decision"
+rule "Consolidar score y decidir"
   salience -5
   no-loop true
   when
-    $s : Solicitante()
     $sol : Solicitud()
     $r : ResultadoEvaluacion(decision == null)
   then
     int score = $r.getScoreTotal();
     double monto = $sol.getMontoSolicitado();
+    double rdi = $sol.getRelacionDeudaIngreso();
+
+    if (rdi >= 4.0 && rdi < 6.0) {
+        $r.addDetalle("Alerta: endeudamiento " + String.format("%.1f", rdi) + "x el ingreso.");
+    }
 
     if (score >= 75 && monto <= 5000) {
         $r.setDecision("APROBADO");
         $r.setNivelDecision("MOTOR_AUTOMATICO");
         $r.setRequiereRevisionHumana(false);
-        $r.addDetalle("Score " + score + "/100 — $" + monto + " → Aprobación automática");
+        $r.addDetalle("Score " + score + " — $" + monto + " → Aprobación automática");
     } else if (score >= 80 && monto > 5000 && monto <= 15000) {
         $r.setDecision("APROBADO");
         $r.setNivelDecision("MOTOR_AUTOMATICO");
         $r.setRequiereRevisionHumana(false);
-        $r.addDetalle("Score " + score + "/100 — $" + monto + " → Aprobación automática");
+        $r.addDetalle("Score " + score + " — $" + monto + " → Aprobación automática");
     } else if (score >= 75 && monto > 15000 && monto <= 50000) {
         $r.setDecision("REVISION_HUMANA");
         $r.setNivelDecision("COMITE_CREDITO");
         $r.setRequiereRevisionHumana(true);
-        $r.addDetalle("Score " + score + "/100 — $" + monto + " → Requiere Comité de Crédito");
+        $r.addDetalle("Score " + score + " — $" + monto + " → Comité de Crédito");
     } else if (score >= 60 && monto > 5000 && monto <= 15000) {
         $r.setDecision("REVISION_HUMANA");
         $r.setNivelDecision("OFICIAL_CREDITO");
         $r.setRequiereRevisionHumana(true);
-        $r.addDetalle("Score " + score + "/100 — $" + monto + " → Requiere Oficial de Crédito");
+        $r.addDetalle("Score " + score + " — $" + monto + " → Oficial de Crédito");
     } else if (score >= 45) {
         $r.setDecision("REVISION_HUMANA");
         $r.setNivelDecision("OFICIAL_CREDITO");
         $r.setRequiereRevisionHumana(true);
-        $r.addDetalle("Score " + score + "/100 — Zona gris");
+        $r.addDetalle("Score " + score + " — Zona gris");
     } else {
         $r.setDecision("RECHAZADO");
         $r.setNivelDecision("MOTOR_AUTOMATICO");
         $r.setRequiereRevisionHumana(false);
         $r.addMotivo("Score insuficiente: " + score + "/100. Mínimo: 45 puntos.");
     }
-    update($r);
 end
